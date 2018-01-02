@@ -1,3 +1,8 @@
 #Do not register individual configuration file
 config.json
 
+#Do not register VscodeSetting folder
+.vscode/
+
+#Do not register pycache folder
+__pycache__

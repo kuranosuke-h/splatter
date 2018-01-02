@@ -1,11 +1,17 @@
 #coding:UTF-8
 """This is main program"""
+import logging
+import logging.config
 import twitter
 import requests
 from SplatterConfig import SplatterConfig
 
 def main():
     """メイン関数"""
+    # Logger設定
+    logging.config.fileConfig('logging.conf')
+    logger = logging.getLogger()
+
     # Configファイル読み込み用のクラスを定義
     spla_conf = SplatterConfig()
 
@@ -20,8 +26,7 @@ def main():
     timeline = api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid')))
     message = timeline[0].text + '\n\n' + spla_conf.get_param_twt('acct') + str(timeline[0].id)
 
-    #取得したtweetをログ出力。
-    print('TweetID:' + str(timeline[0].id))
+    logger.info(msg='TweetID:' + str(timeline[0].id))
 
     # LINE通知を実施。
     payload = {'message': message}
