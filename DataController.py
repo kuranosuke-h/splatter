@@ -64,5 +64,8 @@ class DataController:
     def __del__(self):
         """ デコストラクタ """
         # 生成した結果を書き込む
-        w_json_file = open(self.filename, 'w')
-        json.dump(self.json_dict, w_json_file)
+        try:
+            w_json_file = open(self.filename, 'w')
+            json.dump(self.json_dict, w_json_file)
+        finally:
+            pass

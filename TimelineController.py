@@ -2,9 +2,11 @@
 """
 TwitterTimelineの操作を行うコントローラ
 """
+
+from datetime import datetime
 import twitter
 from DataController import DataController
-from datetime import datetime
+
 
 class TimelineController:
     """ クラス本体 """

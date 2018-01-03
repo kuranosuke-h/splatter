@@ -30,7 +30,7 @@ def main():
     tl_controller = TimelineController(
         api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid')), count=100)
         , spla_conf.get_search_list())
-    
+
     message = tl_controller.get_new_tweet_text() + '\n\n' \
               + spla_conf.get_param_twt('acct') + str(tl_controller.get_new_tweet_id())
 
