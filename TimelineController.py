@@ -3,27 +3,63 @@
 TwitterTimelineの操作を行うコントローラ
 """
 import twitter
+from DataController import DataController
+from datetime import datetime
 
 class TimelineController:
     """ クラス本体 """
     ## 定数定義
     # Timeline
-    timeline: twitter.Status = {twitter.Status()}
+    timeline: list = {}
 
-    def __init__(self, a_timelines: twitter.Status):
+    # 検索対象の文字列
+    search_list: list = {}
+
+    # データ読み込み用のクラスをクラスを定義
+    data_conf = DataController()
+
+    def __init__(self, a_timelines: list, a_search_list: list):
         """ コンストラクタ """
+        self.timeline = a_timelines
+        self.search_list = a_search_list
 
     def get_new_tweet_text(self) -> str:
         """ 最新のtweetを返却する """
-        return str(list(self.timeline)[0].text)
+        return str(self.timeline[0].text)
 
     def get_new_tweet_id(self) -> int:
         """ 最新のtweetのIDを返却する """
-        return list(self.timeline)[0].id
+        return self.timeline[0].id
 
-    def get_new_important_tweet_text(self) -> str:
+    def get_new_important_tweet_text(self) -> twitter.Status:
         """ 最新の重要なtweertを返却する """
+        result: twitter.Status = None
 
-        ## timelineの末尾から検索する。
+        for tweet in self.timeline:
+            # 基準時刻に一番近い通知対象のtweetを取得する。
 
-        return 'hoge'
+            if tweet.created_at_in_seconds() > self.data_conf.get_base_unixtime:
+                # 基準時刻よりも新しいtweetは通知判定を行う。
+                if self.check_text(tweet.text):
+                    result = tweet
+            else:
+                # 基準時刻よりも古いtweetにたどり着いたらループは終了。
+                break
+
+        # 時刻設定を行う
+        if result is not None:
+            # 時刻を通知対象のtweetの時刻で上書きする
+            self.data_conf.set_basetime(result.created_at_in_seconds())
+        else:
+            # 時刻設定がされていない場合、検索対象が見つかっていないため、現在時刻をセットする
+            self.data_conf.set_basetime(datetime.now())
+
+        return result
+
+    def check_text(self, text) -> bool:
+        """ 対象のテキストに検索対象の文字列が含まれているかをチェックする。 """
+        for item in self.search_list:
+            if str(text).find(item) != -1:
+                return True
+
+        return False

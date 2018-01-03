@@ -23,13 +23,20 @@ def main():
                       , access_token_secret=spla_conf.get_param_twt('access_token_secret')
                       , cache=None)
 
+    ## - - - - - - - Start : ToDo - - - - - - -
+    ## SplatoonJPのタイムラインから通知対象のtweetを検出するように処理を見直しする。
+
     # SplatoonJPのタイムラインを取得し、最新のtweetをメッセージに設定。
     tl_controller = TimelineController(
-        api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid'))))
-    message = tl_controller.get_new_tweet_text + '\n\n' \
-              + spla_conf.get_param_twt('acct') + str(tl_controller.get_new_tweet_id)
+        api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid')), count=100)
+        , spla_conf.get_search_list())
+    
+    message = tl_controller.get_new_tweet_text() + '\n\n' \
+              + spla_conf.get_param_twt('acct') + str(tl_controller.get_new_tweet_id())
 
-    logger.info(msg='TweetID:' + str(tl_controller.get_new_tweet_id))
+    logger.info(msg='TweetID:' + str(tl_controller.get_new_tweet_id()))
+
+    ## - - - - - - - End : ToDo - - - - - - -
 
     # LINE通知を実施。
     payload = {'message': message}
