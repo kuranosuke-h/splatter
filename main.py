@@ -5,6 +5,7 @@ import logging.config
 import twitter
 import requests
 from SplatterConfig import SplatterConfig
+from TimelineController import TimelineController
 
 def main():
     """メイン関数"""
@@ -23,10 +24,12 @@ def main():
                       , cache=None)
 
     # SplatoonJPのタイムラインを取得し、最新のtweetをメッセージに設定。
-    timeline = api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid')))
-    message = timeline[0].text + '\n\n' + spla_conf.get_param_twt('acct') + str(timeline[0].id)
+    tl_controller = TimelineController(
+        api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid'))))
+    message = tl_controller.get_new_tweet_text + '\n\n' \
+              + spla_conf.get_param_twt('acct') + str(tl_controller.get_new_tweet_id)
 
-    logger.info(msg='TweetID:' + str(timeline[0].id))
+    logger.info(msg='TweetID:' + str(tl_controller.get_new_tweet_id))
 
     # LINE通知を実施。
     payload = {'message': message}
