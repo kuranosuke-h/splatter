@@ -15,5 +15,7 @@
         "room_debug":"",
 
         "api_url":"https://notify-api.line.me/api/notify"
-    }
+    },
+
+    "search_string":"新しいブキ,新しいステージ,新ルール,[おしらせ],フェスの開催が告げられた"
 }
