@@ -23,25 +23,27 @@ def main():
                       , access_token_secret=spla_conf.get_param_twt('access_token_secret')
                       , cache=None)
 
-    ## - - - - - - - Start : ToDo - - - - - - -
-    ## SplatoonJPのタイムラインから通知対象のtweetを検出するように処理を見直しする。
-
     # SplatoonJPのタイムラインを取得し、最新のtweetをメッセージに設定。
     tl_controller = TimelineController(
         api.GetUserTimeline(user_id=int(spla_conf.get_param_twt('userid')), count=100)
         , spla_conf.get_search_list())
 
-    message = tl_controller.get_new_tweet_text() + '\n\n' \
-              + spla_conf.get_param_twt('acct') + str(tl_controller.get_new_tweet_id())
+    tweet: twitter.Status = tl_controller.get_new_important_tweet()
 
-    logger.info(msg='TweetID:' + str(tl_controller.get_new_tweet_id()))
+    if tweet is not None:
+        logger.info('通知対象のtweetがありました。')
 
-    ## - - - - - - - End : ToDo - - - - - - -
+        message = tweet.text + '\n\n' \
+                + spla_conf.get_param_twt('acct') + str(tweet.id)
 
-    # LINE通知を実施。
-    payload = {'message': message}
-    headers = {'Authorization': 'Bearer ' + str(spla_conf.get_target_notify())}
-    requests.post(spla_conf.get_param_line('api_url'), data=payload, headers=headers)
+        logger.info(msg='TweetID:' + str(tl_controller.get_new_tweet_id()))
+
+        # LINE通知を実施。
+        payload = {'message': message}
+        headers = {'Authorization': 'Bearer ' + str(spla_conf.get_target_notify())}
+        requests.post(spla_conf.get_param_line('api_url'), data=payload, headers=headers)
+    else:
+        logger.info('通知対象のtweetは存在しませんでした。')
 
 if __name__ == '__main__':
     main()

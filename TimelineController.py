@@ -4,6 +4,8 @@ TwitterTimelineの操作を行うコントローラ
 """
 
 from datetime import datetime
+import logging
+import logging.config
 import twitter
 from DataController import DataController
 
@@ -18,12 +20,17 @@ class TimelineController:
     search_list: list = {}
 
     # データ読み込み用のクラスをクラスを定義
-    data_conf = DataController()
+    data_conf: DataController = None
+
+    # Logger設定
+    logging.config.fileConfig('logging.conf')
+    logger = logging.getLogger()
 
     def __init__(self, a_timelines: list, a_search_list: list):
         """ コンストラクタ """
         self.timeline = a_timelines
         self.search_list = a_search_list
+        self.data_conf = DataController()
 
     def get_new_tweet_text(self) -> str:
         """ 最新のtweetを返却する """
@@ -33,14 +40,17 @@ class TimelineController:
         """ 最新のtweetのIDを返却する """
         return self.timeline[0].id
 
-    def get_new_important_tweet_text(self) -> twitter.Status:
-        """ 最新の重要なtweertを返却する """
+    def get_new_important_tweet(self) -> twitter.Status:
+        """ 最新の重要なtweert objを返却する """
         result: twitter.Status = None
 
         for tweet in self.timeline:
             # 基準時刻に一番近い通知対象のtweetを取得する。
+            unixtime_tmp = self.data_conf.get_base_unixtime()
+            #print(unixtime_tmp)
+            #print(msg='hoge::' + str(unixtime_tmp.timestamp()))
 
-            if tweet.created_at_in_seconds() > self.data_conf.get_base_unixtime:
+            if tweet.created_at_in_seconds > unixtime_tmp.timestamp():
                 # 基準時刻よりも新しいtweetは通知判定を行う。
                 if self.check_text(tweet.text):
                     result = tweet
@@ -51,10 +61,12 @@ class TimelineController:
         # 時刻設定を行う
         if result is not None:
             # 時刻を通知対象のtweetの時刻で上書きする
-            self.data_conf.set_basetime(result.created_at_in_seconds())
+            self.logger.debug(msg="通知対象のtweet時刻で上書きします。")
+            self.data_conf.set_basetime(datetime.fromtimestamp(result.created_at_in_seconds).strftime('%Y/%m/%d %H:%M:%S'))
         else:
             # 時刻設定がされていない場合、検索対象が見つかっていないため、現在時刻をセットする
-            self.data_conf.set_basetime(datetime.now())
+            self.logger.debug(msg="現在時刻をセットします。")
+            self.data_conf.set_basetime(datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
 
         return result
 

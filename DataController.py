@@ -46,8 +46,8 @@ class DataController:
                                                , self.base_time_format)
         except ValueError:
             # 適切なフォーマットの値が取得できない場合は現在時刻を設定する。
-            self.base_time = datetime.now().strftime(self.base_time_format)
-            self.set_basetime(self.base_time)
+            self.base_time = datetime.now()
+            self.set_basetime(datetime.now().strftime(self.base_time_format))
 
         self.logger.debug(msg='基準値取得:' + str(self.base_time))
 
@@ -55,17 +55,9 @@ class DataController:
         """ json内のデータをunixtimeに変換して渡す。 """
         return self.base_time
 
-    def set_basetime(self, a_base_time):
+    def set_basetime(self, a_base_time: str):
         """ unixtimeを引き渡し、timeの文字列としてjsonファイルに設定する。 """
         w_json_file = open(self.filename, 'w')
         self.json_dict[self.name_basetime] = a_base_time
         json.dump(self.json_dict, w_json_file)
-
-    def __del__(self):
-        """ デコストラクタ """
-        # 生成した結果を書き込む
-        try:
-            w_json_file = open(self.filename, 'w')
-            json.dump(self.json_dict, w_json_file)
-        finally:
-            pass
+        

@@ -22,7 +22,7 @@ class SplatterConfig:
 
     def __init__(self):
         """ jsonファイルの読み込みを行う """
-        json_file = open(self.filename, 'r')
+        json_file = open(self.filename, 'r', encoding='utf-8')
         self.json_dist = json.load(json_file)
 
     def get_param(self, sent1, sent2):
