@@ -47,8 +47,6 @@ class TimelineController:
         for tweet in self.timeline:
             # 基準時刻に一番近い通知対象のtweetを取得する。
             unixtime_tmp = self.data_conf.get_base_unixtime()
-            #print(unixtime_tmp)
-            #print(msg='hoge::' + str(unixtime_tmp.timestamp()))
 
             if tweet.created_at_in_seconds > unixtime_tmp.timestamp():
                 # 基準時刻よりも新しいtweetは通知判定を行う。
@@ -62,7 +60,8 @@ class TimelineController:
         if result is not None:
             # 時刻を通知対象のtweetの時刻で上書きする
             self.logger.debug(msg="通知対象のtweet時刻で上書きします。")
-            self.data_conf.set_basetime(datetime.fromtimestamp(result.created_at_in_seconds).strftime('%Y/%m/%d %H:%M:%S'))
+            self.data_conf.set_basetime(datetime.fromtimestamp(result.created_at_in_seconds)
+                                        .strftime('%Y/%m/%d %H:%M:%S'))
         else:
             # 時刻設定がされていない場合、検索対象が見つかっていないため、現在時刻をセットする
             self.logger.debug(msg="現在時刻をセットします。")
